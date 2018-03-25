@@ -1,0 +1,2 @@
+*.yml linguist-language=Shell
+*.yaml linguist-language=Shell
