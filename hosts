@@ -1,0 +1,15 @@
+[swarm:children]
+managers
+workers
+
+[managers]
+# master=true is the first node where the swarm is created, MUST be unique
+# adv_addr is the advertise address with port
+192.168.60.10 master=true adv_addr=192.168.60.10:2377
+192.168.60.20 manager=true adv_addr=192.168.60.10:2377
+192.168.60.30 manager=true adv_addr=192.168.60.10:2377
+
+[workers]
+192.168.60.40 worker=true adv_addr=192.168.60.10:2377
+192.168.60.50 worker=true adv_addr=192.168.60.10:2377
+192.168.60.60 worker=true adv_addr=192.168.60.10:2377
