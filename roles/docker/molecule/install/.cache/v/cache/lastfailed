@@ -1,0 +1,5 @@
+{
+  "tests/test_default.py::test_hosts_file[ansible://centos69-install]": true, 
+  "tests/test_default.py::test_hosts_file[ansible://centos73-install]": true, 
+  "tests/test_default.py::test_hosts_file[ansible://centos74_nexus-install]": true
+}

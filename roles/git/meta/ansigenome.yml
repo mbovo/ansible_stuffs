@@ -1,0 +1,71 @@
+---
+
+ansigenome_info:
+
+  authors:
+
+    - name:  'Manuel Bovo'
+      email: 'mbovo@facilitylive.com'
+
+    - name:  'Marco Tozzi'
+      email: 'mtozzi@facilitylive.com'
+      
+  synopsis: |
+    Wrapper to common git commands, base on first work by Marco.
+    
+  
+  usage: |
+    This role support a series of git commands in order to interact with remote or local repository
+    Supported commands:
+       branch
+       checkout
+       clone
+       commit
+       commit and push
+       init
+       push
+       push force
+       tag
+  
+  sample: |
+
+    # init new repository
+    - { role: git, action: "init", git_dest: "./new_project", git_repo: "git@github.com:username/projectname.git" }
+
+    # otherwise use project_name and repo_name and server_base_url
+    # the git_repo will be: ssh://git@stash.org.com:7999/test/myrepo.git by default
+    - { role: git, action: "init", git_dest: "./net_project", git_proj_name: "test", git_repo_name: "myrepo", git_server_base_url: "stash.org.com"}
+
+
+    # Clone remote repository
+    - { role: git, action: "clone", git_dest: "./", git_repo: "git@github.com:username/projectname.git" }
+
+
+    # Checkout specific branch
+    - { role: git, action: "checkout", git_dest: "./", git_branch: "develop", git_repo: "git@github.com:username/projectname.git" }
+
+    # Checkout specific tag (tag will override branch"
+    - { role: git, action: "checkout", git_dest: "./",  git_tag: "2.2.3", git_branch: "develop", git_repo: "git@github.com:username/projectname.git" }
+
+    # Checkout master branch (need explicit flag: git_use_master)"
+    - { role: git, action: "checkout", git_dest: "./", git_branch: "master", git_user_master: True, git_repo: "git@github.com:username/projectname.git" }
+
+
+    # Commit and push (commit will add --all)
+    - { role: git, action: "commit_push", git_dest: "./", git_branch: "develop", git_message: "My commit", git_repo: "git@github.com:username/projectname.git" }
+    # or otherwise:
+    - { role: git, action: "commit", git_dest: "./", git_branch: "develop", git_message: "My commit", git_repo: "git@github.com:username/projectname.git" }
+    - { role: git, action: "push", git_dest: "./", git_branch: "develop", git_repo: "git@github.com:username/projectname.git" }
+
+    # IF you want to push force:
+    - { role: git, action: "push_force", git_dest: "./", git_branch: "develop", git_message: "My commit", git_repo: "git@github.com:username/projectname.git" }
+
+    # In order to push to master:
+    - { role: git, action: "commit", git_dest: "./", git_branch: "master", git_user_master: True git_message: "My commit", git_repo: "git@github.com:username/projectname.git" }
+
+    # Add a new tag:
+    - { role: git, action: "tag", git_dest: "./", git_tag: "2.3.0" git_branch: "develop", git_repo: "git@github.com:username/projectname.git" }
+
+
+    # Using a different User/email:
+    - { role: git, action: "push", git_dest: "./", git_branch: "develop", git_config_user: "Manuel Bovo", git_config_email: "mbovo@email.com", git_repo: "git@github.com:username/projectname.gi"}

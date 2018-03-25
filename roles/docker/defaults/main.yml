@@ -1,0 +1,75 @@
+---
+
+docker_start_engine: True
+docker_use_lvm: false
+docker_use_tls: False
+
+docker_insecure_registry: "registry.zroot.int"
+
+ntp_server: "10.3.1.113"
+timezone: "Europe/Rome"
+
+docker_repo: "https://download.docker.com/linux/centos/docker-ce.repo"
+#docker_version: "docker-ce"
+docker_version: "docker-ce-17.09.1.ce-1.el7.centos"
+
+adv_addr: "0.0.0.0:2377"
+
+################## LVM THINPOOL #######################
+
+# Default phisical volume is left commented in order to fail if not given by the caller
+# avoiding disk distruption
+# docker_pvname: "/dev/sdb"
+
+docker_vgname: "docker"
+docker_lvname: "thinpool"
+docker_lvname_meta: "{{docker_vgname}}meta"
+
+
+################## EXTRA OPTIONS #######################
+
+docker_sockets: " -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375"
+docker_tls: " --tlsverify --tlscacert=/etc/docker/certs/ca.pem --tlscert=/etc/docker/certs/server.pem --tlskey=/etc/docker/certs/server.key"
+docker_other_opts: " --max-concurrent-downloads=10 --max-concurrent-uploads=10"
+docker_engine_options: " {{docker_sockets}} {{docker_other_opts}} "
+docker_engine_labels:
+  org.zroot.swarm: ""
+docker_engine_log_level: "info"
+docker_engine_log_driver: "json-file"
+docker_engine_log_labels: "{% raw %}{{.Name}}{% endraw%}"
+docker_engine_log_max_file: "5"
+docker_engine_log_max_size: "10m"
+docker_engine_concurrent_transfer: "10"
+docker_kernel_options:
+  - "net.ipv4.ip_forward = 1"
+  - "net.bridge.bridge-nf-call-arptables = 1"
+  - "net.bridge.bridge-nf-call-ip6tables = 1"
+  - "net.bridge.bridge-nf-call-iptables = 1"
+
+
+# For kubernetes you must use cgroupfs
+#docker_cgroup_driver: "cgroupfs"
+docker_cgroup_driver: ""
+
+################## DEFAULTS #############################
+
+docker_yum_pre:
+  - bridge-utils
+  - tar
+  - wget
+  - git
+  - net-tools
+  - xz
+  - unzip
+  - curl
+  - ipset
+  - ntp
+  - yum-utils
+  - ca-certificates
+
+manager: false
+master: false
+worker: false
+leave: false
+
+action: install

@@ -1,0 +1,65 @@
+---
+
+- name: "Install kernel tools/headers/devel"
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - gcc
+    - kernel
+    - dracut
+    - dracut-network
+    - dracut-config-rescue
+    - linux-firmware
+    - kernel-devel
+    - kernel-headers
+    - kernel-tools
+  when: "is_client|default('false')|bool"
+
+- name: "Install beegfs client"
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - beegfs-client
+    - beegfs-helperd
+    - beegfs-utils
+  when: "is_client|default('false')|bool"
+
+- name: "Reboot"
+  shell:  sleep 2 && reboot
+  async: 1
+  poll: 0
+  ignore_errors: True
+  when: "is_client|default('false')|bool"
+
+- meta: reset_connection
+  when: "is_client|default('false')|bool"
+
+- name: "Wait for reboot"
+  become: False
+  local_action:
+    module: wait_for
+    host: "{{ inventory_hostname }}"
+    port: "{{ ansible_port }}"
+    delay: "{{ boot_wait | default(5) }}"
+    connect_timeout: "{{ boot_wait | default(5) }}"
+    timeout: 240
+    search_regex: "OpenSSH"
+  when: "is_client|default('false')|bool"
+
+- name: "Force rebuild client kernel module"
+  command: "/etc/init.d/beegfs-client rebuild"
+  when: is_client|default('false')|bool
+
+- name: "Configurint client service"
+  command: "/opt/beegfs/sbin/beegfs-setup-client -m {{mgmt_node}}"
+
+- name: "Starting client services"
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - beegfs-helperd
+    - beegfs-client

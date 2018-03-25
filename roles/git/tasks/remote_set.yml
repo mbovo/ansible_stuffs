@@ -1,0 +1,7 @@
+---
+
+- name: "[REMOTE] set remote url"
+  #command: git remote add origin 'https://{{stash_admin_user}}:{{stash_admin_passwd}}@{{stash_base_url}}/scm/{{git_project_name}}/{{git_repo_name|urlencode()}}.git'
+  command: git remote set-url {{ remote_name }} '{{ remote_url }}'
+  args:
+    chdir: "{{ git_dest }}"

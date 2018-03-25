@@ -1,0 +1,19 @@
+---
+
+nexus_user: "nexus"
+nexus_group: "nexus"
+nexus_uid: "1011"
+nexus_gid: "1011"
+nexus_home: "/opt/nexus"
+
+#nexus_dwn: "http://download.sonatype.com/nexus/3/latest-unix.tar.gz"
+#nexus_ver: "3.5.0"
+nexus_ver: "3.6.2-01"
+nexus_dwn: "http://repo.zroot.org/artifactory/thirdparty/com/sonatype/nexus/{{ nexus_ver }}/latest_unix.tar.gz"
+
+nexus_path: "{{ nexus_home }}"
+nexus_data_path: "{{ nexus_path }}/../sonatype-work/nexus3"
+
+nexus_keystore_passwd: "changeit"
+nexus_keymanager_passwd: "changeit"
+nexus_truststore_passwd: "changeit"

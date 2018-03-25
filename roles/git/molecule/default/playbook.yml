@@ -1,0 +1,25 @@
+---
+
+- hosts: all
+  roles:
+    - { role: "git", action: "clone" , git_branch: "master" }
+
+- hosts: all
+  roles:
+    - { role: "git", action: "branch", git_branch: "br_{{ansible_date_time.date}}_{{ansible_date_time.hour}}-{{ansible_date_time.minute}}" }
+    - { role: "git", action: "push", git_branch: "br_{{ansible_date_time.date}}_{{ansible_date_time.hour}}-{{ansible_date_time.minute}}" }
+
+- hosts: all
+  roles:
+    - { role: "git", action: "checkout", git_branch: "develop" }
+
+- hosts: all
+  tasks:
+    - name: "add new file"
+      file:
+        path: "{{git_dest}}/new_file_{{ansible_date_time.date}}_{{ansible_date_time.time}}"
+        state: touch
+
+- hosts: all
+  roles:
+    - { role: "git", action: "commit_push", git_branch: "develop"}

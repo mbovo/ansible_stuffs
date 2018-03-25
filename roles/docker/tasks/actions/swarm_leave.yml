@@ -1,0 +1,5 @@
+---
+
+
+- name: "Remove {{inventory_hostname}} from swarm"
+  shell: "docker swarm leave --force"

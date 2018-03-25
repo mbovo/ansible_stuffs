@@ -1,0 +1,31 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    molecule_file: "{{ lookup('env','MOLECULE_FILE') }}"
+    molecule_scenario_directory: "{{ lookup('env','MOLECULE_SCENARIO_DIRECTORY') }}"
+    molecule_yml: "{{ lookup('file', molecule_file) | from_yaml }}"
+
+  tasks:
+    - name: Build an Ansible compatible image
+      docker_image:
+        path: "{{ molecule_scenario_directory }}"
+        name: "{{ item.image }}"
+        tag: "{{ item.tag }}"
+      with_items: "{{ molecule_yml.platforms }}"
+
+    - name: Create molecule instance(s)
+      docker_container:
+        name: "{{ item.name }}"
+        hostname: "{{ item.name }}"
+        image: "{{ item.image }}:{{ item.tag }}"
+        state: started
+        recreate: no
+        privileged: "{{ item.priv }}"
+        capabilities: "{{ item.caps }}"
+        security_opts: "{{ item.sec_opts }}"
+        log_driver: syslog
+        command: "{{ item.cmd }}"
+      with_items: "{{ molecule_yml.platforms }}"

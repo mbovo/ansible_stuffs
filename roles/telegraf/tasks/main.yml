@@ -1,0 +1,56 @@
+---
+
+- name: "Install influxdata yum repo"
+  template:
+    src: "templates/influxdata.repo.j2"
+    dest: "/etc/yum.repos.d/influxdb.repo"
+
+- name: "Install telegraf"
+  yum:
+    name: "telegraf"
+    state: present
+
+- name: "Create destination directory"
+  file:
+    path: "/etc/telegraf/"
+    state: directory
+
+- include_vars: "defaults/agent.yml"
+
+- debug: msg="{{conf}}"
+
+- include_vars: "defaults/inputs.yml"
+
+- name: "Loading input plugins"
+  set_fact:
+    inputs: "{{ inputs| combine( { item:candidate_input[item] } )}}"
+  with_items: "{{ input_plugins }}"
+
+- debug: msg="{{inputs}}"
+
+- include_vars: "defaults/outputs.yml"
+
+- name: "Loading output plugins"
+  set_fact:
+    outputs: "{{ outputs| combine( { item:candidate_output[item] } )}}"
+  with_items: "{{ output_plugins }}"
+
+- debug: msg="{{outputs}}"
+
+- name: "Template configuration file"
+  template:
+    src: "templates/telegraf.conf.j2"
+    dest: "/etc/telegraf/telegraf.conf"
+
+- name: "Configuring for docker"
+  user:
+    name: "telegraf"
+    groups: "docker"
+    append: yes
+  ignore_errors: True
+
+- name: "Start and enable telegraf service"
+  service:
+    name: telegraf
+    state: started
+    enabled: True

@@ -1,0 +1,54 @@
+---
+
+- name: "Add elrepo gpg key"
+  command: rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+
+- name: "Add elrepo for centos"
+  yum:
+    name: http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+    state: present
+
+- name: "Perform a system upgrade (do_upgrade={{do_upgrade|default('false')}})"
+  yum:
+    name: '*'
+    state: latest
+  when: do_upgrade|default('false')|bool
+
+- name: "Install latest kernel"
+  yum:
+    name: kernel-ml
+    enablerepo: elrepo-kernel
+    state: latest
+
+- name: "Disabling SELINUX"
+  selinux:
+    state: disabled
+  register: is_selinux_on
+  when:  not ansible_connection == "docker"
+
+- debug: var=is_selinux_on
+  when:  not ansible_connection == "docker"
+
+- name: "Grub set default"
+  command: "grub2-set-default 0"
+
+- name: "Grub makeconfig"
+  command: grub2-mkconfig -o /boot/grub2/grub.cfg
+
+- name: "reboot on new kernel"
+  shell: sleep 5;reboot
+  async: 1
+  poll: 0
+  when: not ansible_connection == "docker"
+
+- name: "waiting for host reboot"
+  become: False
+  local_action:
+    module: wait_for
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 10
+    connect_timeout: 60
+    search_regex: "OpenSSH"
+  when: not ansible_connection == "docker"
+

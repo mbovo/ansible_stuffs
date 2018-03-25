@@ -1,0 +1,52 @@
+---
+
+ansigenome_info:
+  authors:
+    - name:  'Manuel Bovo'
+      email: 'email'
+  synopsis:  Installation of docker-engine optionally using lvm-thinpool devicemapper
+  
+  usage: |
+    This role will setup docker-engine with the specified version.
+    With a specific action can enable the swarm mode on multiple nodes at the same time
+    
+  sample: |
+    # install docker engine
+    roles: 
+      - role: docker
+      
+    # configure lvm-thinpool using the whole physical device /dev/sdb
+    roles:
+      - {role: docker, docker_use_lvm: true, docker_pvname: "/dev/sdb" }
+ 
+    # specify ntp_server and defined timezone to use for time synchronization
+    roles:
+      - { role: docker,  ntp_server: 10.3.1.113, timezone: "Europe/Rome" }
+      
+    # Specify LVM volume group name, volume name and metadata volume name
+    roles:
+      - { role: docker, docker_use_lvm: true, docker_pvname: "/dev/sdb", docker_vgname: "docker",  docker_lvname: "thinpool", docker_lvname_meta: "dockermeta" }
+
+    # enabling swarm
+
+        #An example of inventory:
+        # adv_addr must be specified equals to the node tagged as master=true
+
+        [swarm:children]
+        managers
+        workers
+
+        [managers]
+        # master=true is the first node where the swarm is created, MUST be unique
+        # adv_addr is the advertise address with port
+        192.168.60.10 master=true adv_addr=192.168.60.10:2377
+        192.168.60.20 manager=true adv_addr=192.168.60.10:2377
+        192.168.60.30 manager=true adv_addr=192.168.60.10:2377
+
+        [workers]
+        192.168.60.40 worker=true adv_addr=192.168.60.10:2377
+        192.168.60.50 worker=true adv_addr=192.168.60.10:2377
+        192.168.60.60 worker=true adv_addr=192.168.60.10:2377
+        192.168.60.70 worker=true adv_addr=192.168.60.10:2377
+        192.168.60.80 worker=true adv_addr=192.168.60.10:2377
+        192.168.60.50 worker=true adv_addr=192.168.60.10:2377

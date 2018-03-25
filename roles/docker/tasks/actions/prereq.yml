@@ -1,0 +1,35 @@
+---
+
+- name: "[PREREQ] - Install a few utility tools"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items: "{{ docker_yum_pre}}"
+  tags: prereq
+   
+- name: "[PREREQ] - Reconfigure ntp client"
+  lineinfile: 
+    state: present
+    regexp: "server .* iburst"
+    line: "server {{ntp_server}} iburst"
+    dest: /etc/ntp.conf
+  tags: prereq
+
+- name: "[PREREQ] - Restart ntp server"
+  service:
+    name: ntpd
+    state: restarted
+  ignore_errors: true
+  tags: prereq
+
+- name: "[PREREQ] - Update local timezone"
+  shell: rm -f /etc/localtime && ln -s /usr/share/zoneinfo/{{timezone}} /etc/localtime
+  tags: prereq
+
+- name: "[PREREQ] - Stop and disable firewalld"
+  service:
+    name: "firewalld"
+    state: stopped
+    enabled: no
+  ignore_errors: True
+  tags: prereq

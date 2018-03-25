@@ -1,0 +1,12 @@
+# Molecule managed
+
+---
+all:
+  hosts:
+    centos74_git: &id001
+      ansible_connection: docker
+      ansible_ssh_user: jenkins
+ungrouped:
+  hosts:
+    centos74_git: *id001
+  vars: {}

@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - { role: offline_flep_installer, action: install, do_portal: True, do_frontend: True, web_protocol: https, user_sudoer_uid: 1090 }
+#    - { role: sslweb, fl_product_name: "nexus", fl_domain: "zroot.int", fl_servername: "nexustst.zroot.int", fl_serveralias: "nexus.zroot.int", fl_proxyserver_to: "https://localhost:8443/" }
+    - { role: nexus }

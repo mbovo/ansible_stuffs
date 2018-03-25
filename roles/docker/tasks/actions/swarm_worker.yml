@@ -1,0 +1,10 @@
+---
+
+- name: "Register worker token"
+  delegate_to: localhost
+  become: false
+  shell: cat /tmp/worker.token
+  register: worker_token
+
+- name: "Register {{inventory_hostname}} to swarm"
+  shell: "docker swarm join --token {{worker_token.stdout}} {{adv_addr}}"

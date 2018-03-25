@@ -1,0 +1,17 @@
+---
+
+- include: "set_user.yml"
+- include: "checkout.yml"
+
+- name: "[TAG] {{git_tag}}"
+  command: git tag {{git_tag}}
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master" or ( git_branch == "master" and git_use_master|bool )
+
+- name: "[TAG] push tags"
+  command: git push --force --tags origin {{git_branch}}
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master" or ( git_branch == "master" and git_use_master|bool )
+

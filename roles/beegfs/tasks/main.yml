@@ -1,0 +1,40 @@
+---
+
+- name: "Create beegfs.repo"
+  file:
+    path: /etc/yum.repos.d/beegfs.repo
+    state: touch
+
+- name: "Add EPEL repository"
+  yum_repository:
+    name: "epel"
+    description: "EPEL 7 YUM repo"
+    baseurl: "http://download.fedoraproject.org/pub/epel/7/$basearch/"
+    mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+    gpgcheck: False
+
+- name: "Add beegfs repository"
+  yum_repository:
+    name: "beegfs"
+    description: "Beegfs"
+    baseurl: "http://www.beegfs.io/release/beegfs_6/dists/rhel7"
+    gpgkey: "http://www.beegfs.io/release/beegfs_6/gpg/RPM-GPG-KEY-beegfs"
+    gpgcheck: no
+    file: "beegfs"
+
+- name: "Disabling selinux"
+  selinux:
+    state: disabled
+
+- include: "mgmt.yml"
+  when: is_mgmt|default('false')|bool
+
+- include: "meta.yml"
+  when: is_meta|default('false')|bool
+
+- include: "storage.yml"
+  when: is_storage|default('false')|bool
+
+- include: "client.yml"
+  when: is_client|default('false')|bool
+

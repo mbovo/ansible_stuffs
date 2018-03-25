@@ -1,0 +1,44 @@
+---
+
+- name: "Install Management server"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - beegfs-mgmtd
+
+- name: "Install admon server"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - beegfs-admon
+
+- include: "kernel.yml"
+
+- name: "mkfs /dev/{{mgmt_disk}}"
+  shell: "mkfs.{{disks.mgmt.fstype}} {{disks.mgmt.mkfs_options}} /dev/{{mgmt_disk}}"
+
+- name: "Make directory {{mgmt_mount}}"
+  file:
+    path: "{{mgmt_mount}}"
+    state: directory
+
+- name: "Writing /etc/fstab"
+  lineinfile:
+    path: "/etc/fstab"
+    line: "/dev/{{mgmt_disk}}   {{mgmt_mount}}  {{disks.mgmt.fstype}} {{disks.mgmt.mount_options}}  0 0"
+
+- name: "Mounting mgmt disk"
+  shell: "mount /dev/{{mgmt_disk}}"
+
+- name: "Configuring mgmt service"
+  command: "/opt/beegfs/sbin/beegfs-setup-mgmtd -f -p {{ mgmt_mount }}"
+
+- name: "Starting management services"
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - beegfs-mgmtd

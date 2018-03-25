@@ -1,0 +1,30 @@
+---
+
+- hosts: "{{ myhosts }}"
+  become: True
+  become_user: root
+  roles:
+    - { role: docker, action: cleanup,            when: "'primary-master' not in group_names and 'secondary-masters' not in group_names" }
+    - { role: kernel_upgrade, do_upgrade: false,  when: "'primary-master' not in group_names and 'secondary-masters' not in group_names" }
+
+
+
+- hosts: "{{myhosts}}"
+  become: True
+  become_user: root
+  roles:
+    - { role: "{{kubeadm2ha_roles}}/prepare-nodes", when: "'primary-master' not in group_names"}
+    - { role: "{{kubeadm2ha_roles}}/join-token",    when: "'primary-master' in group_names" }
+    - { role: "{{kubeadm2ha_roles}}/minions",       when: "'minions'        in group_names" }
+    - { role: "{{kubeadm2ha_roles}}/add-labels"}
+
+
+# Little example:
+# kubeadm2ha_roles  MUST be the directory with all kubeadm2ha roles
+# myhosts           MUST contains the primary node of k8 cluster
+# docker_pvname
+# docker_use_lvm
+# skip_docker       MUST be false in order to enforce docker reconfiguration
+# do_upgrade        Only if you want to perform a whole yum upgrade to the target system (when upgrading kernel)
+
+# ansible-playbook -i /kubeadm2ha/ansible/local.inventory ./playbooks/swarm2k8.yml -e "kubeadm2ha_roles=/kubeadm2ha/ansible/roles myhosts=192.168.60.40,192.168.60.50,192.168.60.10 docker_pvname=/dev/sdb docker_use_lvm=true skip_docker=false" -u root -b

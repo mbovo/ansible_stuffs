@@ -1,0 +1,8 @@
+---
+- hosts: "vagrant"
+  sudo: True
+  roles:
+    - common
+    - apache
+    - { role: java, java_jre_version: "1.8.0_92", java_jce_version: "8", do_java_jdk: True, do_java_jni: True }
+

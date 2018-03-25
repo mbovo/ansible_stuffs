@@ -1,0 +1,44 @@
+---
+
+- name: "Init swarm on first node"
+  command: docker swarm init --advertise-addr {{adv_addr}}
+  register: new_swarm
+  ignore_errors: true
+
+- name: "Register worker token"
+  shell: docker swarm join-token worker | grep token | awk '{print $5}'
+  register: worker_token
+  
+- name: "Register manager token"
+  shell: docker swarm join-token manager | grep token | awk '{print $5}'
+  register: manager_token
+
+- debug: msg="{{manager_token.stdout}}"
+- debug: msg="{{worker_token.stdout}}"
+
+- file: state=absent name={{item}}
+  become: false 
+  delegate_to: localhost
+  with_items: 
+    - "/tmp/manager.token"
+    - "/tmp/worker.token"
+
+- name: "Save worker token {{worker_token.stdout}}"
+  delegate_to: localhost
+  become: false
+  lineinfile:
+    state: present
+    create: yes
+    dest: "/tmp/worker.token"
+    line: "{{worker_token.stdout}}"
+  when: "{{worker_token}}"
+  
+- name: "Save manager token {{manager_token.stdout}}"
+  delegate_to: localhost
+  become: false
+  lineinfile:
+    state: present
+    create: yes
+    dest: "/tmp/manager.token"
+    line: "{{manager_token.stdout}}"
+  when: "{{manager_token}}"

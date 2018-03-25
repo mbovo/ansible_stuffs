@@ -1,0 +1,89 @@
+########################## AGENT #####################################
+
+[global_tags]
+{% for tagk, tagv in conf.global_tags.iteritems() %}
+    {{ tagk }} = {{ tagv }}
+{% endfor %}
+
+[agent]
+{% for key, value in conf.agent|dictsort %}
+{% if value is iterable and value is not string %}
+    {{ key }} = [ "{{ value|list|join('",') }}" ]
+{% elif value is number %}
+    {{ key }} = {{ value }}
+{% elif value is equalto "true" %}
+    {{ key }} = true
+{% elif value is equalto "false" %}
+    {{ key }} = false
+{% else %}
+    {{ key }} = "{{ value }}"
+{% endif %}
+{% endfor %}
+
+# # Print all metrics that pass through this filter.
+# [[processors.printer]]
+
+{% for agg_k, agg_v in aggregators.iteritems() %}
+[[aggregators.{{ agg_k }}]]
+{% for key, value in agg_v|dictsort %}
+{% if value is iterable and value is not string %}
+    {{ key }} = [ "{{ value|list|join('",') }}" ]
+{% elif value is number %}
+    {{ key }} = {{ value }}
+{% elif value is equalto "true" %}
+    {{ key }} = true
+{% elif value is equalto "false" %}
+    {{ key }} = false
+{% else %}
+    {{ key }} = "{{ value }}"
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+########################## OUTPUTS #####################################
+
+{% for output_k, output_v in outputs|dictsort %}
+[[outputs.{{ output_k }}]]
+{% for key, value in output_v|dictsort %}
+{% if value is iterable and value is not string %}
+    {{ key }} = [ "{{ value|list|join('",') }}" ]
+{% elif value is number %}
+    {{ key }} = {{ value }}
+{% elif value is equalto "true" %}
+    {{ key }} = true
+{% elif value is equalto "false" %}
+    {{ key }} = false
+{% else %}
+    {{ key }} = "{{ value }}"
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+########################## INPUTS #####################################
+
+{% for input_k, input_v in inputs|dictsort %}
+[[inputs.{{ input_k }}]]
+{% for key, value in input_v|dictsort %}
+{% if value is iterable and value is not string %}
+{% if value[0] is iterable and value[0] is not string %}
+{% for item in value|sort %}
+    [[inputs.{{ input_k }}.{{ key }}]]
+{% for k,v in item|dictsort %}
+        {{ k }} = "{{ v }}"
+{% endfor %}
+{% endfor %}
+{% else %}
+    {{ key }} = [ "{{ value|list|join('","') }}" ]
+{% endif %}
+{% elif value is number %}
+    {{ key }} = {{ value }}
+{% elif value is equalto "true" %}
+    {{ key }} = true
+{% elif value is equalto "false" %}
+    {{ key }} = false
+{% else %}
+    {{ key }} = "{{ value }}"
+{% endif %}
+{% endfor %}
+{% endfor %}
+

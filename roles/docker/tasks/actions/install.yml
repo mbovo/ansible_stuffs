@@ -1,0 +1,33 @@
+---
+
+- include: "prereq.yml"
+
+- name: "[INSTALL] - Add docker public key for CS packages"
+  command: rpm --import "https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e"
+  tags: install
+
+- name: "[INSTALL] - Add docker repo"
+  command: "yum-config-manager --add-repo {{docker_repo}}"
+  tags: install
+
+- name: "[INSTALL] - Install docker engine"
+  yum:
+    name: "{{docker_version}}"
+    update_cache: True
+    state: present
+  tags: install
+
+- name: "[INSTALL] - Enable docker engine"
+  service:
+    name: docker
+    state: started
+    enabled: True
+  when: docker_start_engine|bool and not ansible_connection == "docker"
+  ignore_errors: True
+
+- include: "lvm.yml"
+  static: no
+  when: docker_use_lvm|bool
+
+- include: "configure.yml"
+  static: no

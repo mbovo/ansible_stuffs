@@ -1,0 +1,160 @@
+
+candidate_input:
+  apache:
+    urls:
+      - "http://localhost/server-status?auto"
+    username: "myuser"
+    password: "mypassword"
+    response_timeout: "25s"
+    #ssl_ca: ""
+    #ssl_cert: ""
+    #ssl_key: ""
+    #insecure_skip_verify: "false"
+
+  bcache:
+    bcachePath: "/sys/fs/bcache"
+    bcacheDevs:
+      - "bcache0"
+
+  cassandra:
+    context: "/jlokia/read"
+    servers:
+      - "myuser:password@10.10.10.1:8878"
+    metrics:
+      - "/java.lang:type=Memory/HeapMemoryUsage"
+
+  cgroup:
+    paths:
+      - "/cgroup/memory"
+      - "/cgroup/memory/child1"
+      - "/cgroup/memory/child2/*"
+
+  consul:
+    address: "localhost"
+    scheme: "http"
+    token: ""
+    username: ""
+    password: ""
+    datacentre: ""
+
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+#    container_name_include: "[]"
+#    container_name_exclude: "[]"
+    timeout: "5s"
+    perdevice: "true"
+    total: "false"
+#    docker_label_include: "[]"
+#    docker_label_exclude: "[]"
+#    tag_env: '["JAVA_HOME", "HEAP_SIZE"] '
+
+  elasticsearch:
+    servers:
+      - "http://localhost:9200"
+    http_timeout: "5s"
+    local: "true"
+    cluster_health: "false"
+    cluster_stats: "false"
+    #ssl_ca: ""
+    #ssl_cert: ""
+    #ssl_key: ""
+    insecure_skip_verify: "false"
+
+  exec:
+    commands:
+      - "/etc/telegraf/openfiles.sh"
+    timeout: "5s"
+    name_suffix: "_openfiles"
+    data_format: "value"
+    data_type: "integer"
+
+  filestat:
+    files:
+      - "/var/log/**.log"
+    md5: "false"
+
+  netstat: {}
+
+  nstat:
+    proc_net_netstat: "/proc/net/netstat"
+    proc_net_snmp: "/proc/net/snmp"
+    proc_net_snmp6: "/proc/net/snmp6"
+    dump_zeros: "true"
+
+  procstat:
+    pid_file: "/var/run/httpd.pid"
+    exe: "java"
+    pattern: "g7"
+    user: "fportal"
+    process_name: "bar"
+    prefix: ""
+    fielddrop: ["cpu_time_*"]
+    pid_tag: "true"
+
+  jolokia:
+    context: "/jolokia/"
+    mode: "proxy"
+    proxy:
+      - host: "127.0.0.1"
+        port: "8080"
+    response_header_timeout: "3s"
+    client_timeout: "4s"
+    servers:
+      - name: "name1"
+        host: "172.0.0.1"
+        port: "8280"
+      - name: "name"
+        host: "127.0.0.1"
+        port: "8281"
+        username: "user"
+        password: "password"
+    metrics:
+      - name: "heap_memory_usage"
+        mbean: "java.lang:type=Memory"
+        attribute: "HeapMemoryUsage"
+      - name: "thread_count"
+        mbean: "java.lang:type=Threading"
+        attribute: "TotalStartedThreadCount,ThreadCount,DaemonThreadCount,PeakThreadCount"
+      - name: "class_count"
+        mbean:  "java.lang:type=ClassLoading"
+        attribute: "LoadedClassCount,UnloadedClassCount,TotalLoadedClassCount"
+      - name: "system_count"
+        mbean:  "java.lang:type=OperatingSystem"
+        attribute: "MaxFileDescriptorCount,OpenFileDescriptorCount"
+
+  cpu:
+    percpu: "true"
+    totalcpu: "true"
+    collect_cpu_time: "false"
+
+  disk:
+    mount_points:
+      - "/"
+      - "/share"
+    ignore_fs:
+      - "tmpfs"
+      - "devtmpfs"
+
+  diskio:
+    devices:
+      - "sda"
+      - "sdb"
+    skip_serial_number: "false"
+
+  kernel: {}
+  kernel_vmstat: {}
+  mem: {}
+  net: {}
+  processes: {}
+  swap: {}
+  system: {}
+
+  httpjson:
+    servers:
+      - "https://jenkins.zroot.int/computer/api/json"
+    response_timeout: "5s"
+    insecure_skip_verify: "true"
+    method: "GET"
+    headers:
+      Authorization: "Basic somethinghere"
+

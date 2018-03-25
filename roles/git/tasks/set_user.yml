@@ -1,0 +1,15 @@
+---
+
+- name: "[SET_USER] Config E-Mail"
+  git_config:
+    name: user.email
+    repo: "{{git_dest}}"
+    scope: local
+    value: "{{ git_config_email }}"
+
+- name: "[SET_USER] Config Name"
+  git_config:
+    name: user.name
+    repo: "{{ git_dest }}"
+    scope: local
+    value: "{{git_config_user}}"

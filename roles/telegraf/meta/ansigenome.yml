@@ -1,0 +1,21 @@
+---
+
+ansigenome_info:
+
+  authors:
+
+    - name:  'Manuel Bovo'
+      email: 'email@email.com'
+      
+  synopsis: |
+    The role will do terrible things.
+    This role will do nancy stuffs
+    
+  
+  usage: This is a brief usage
+  
+  sample: |
+    - role: telegraf
+    
+    
+    

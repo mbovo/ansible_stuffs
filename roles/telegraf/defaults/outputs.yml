@@ -1,0 +1,44 @@
+---
+
+candidate_output:
+  influxdb:
+    urls:
+      - "http://influxdb.zroot.int:8086"
+    database: "{{ influx_dbname }}"
+    retention_policy: ""
+    write_consistency: "any"
+    timeout: "2s"
+    username: "root"
+    password: "root"
+    user_agent: "telegraf"
+    udp_payload: 512
+    #ssl_ca: ""
+    #ssl_cert: ""
+    #ssl_key: ""
+    #insecure_skip_verify: "false"
+
+  elasticsearch:
+    urls:
+      - "http://node1.es.example.com:9200"
+    timeout: "5s"
+    enable_sniffer: "false"
+    health_check_interval: "10s"
+    username: "telegraf"
+    password: "mypassword"
+    index_name: "telegraf-%Y.%m.%d"
+    manage_template: "true"
+    template_name: "telegraf"
+    overwrite_template: "false"
+
+  file:
+    files:
+      - "stdout"
+      - "/tmp/metrics.out"
+    data_format: "influx"
+    # data_format: "graphite"
+    # prefix: "telegraf"
+    ## graphite template
+    # template: "host.tags.measurement.field"
+
+    # data_format: "json"
+    # json_timestamp_units: "1ns"

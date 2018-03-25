@@ -1,0 +1,41 @@
+---
+
+- name: "Install metadata server"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - beegfs-meta
+
+- include: "kernel.yml"
+
+- name: "mkfs /dev/{{meta_disk}}"
+  shell: "mkfs.{{disks.meta.fstype}} {{disks.meta.mkfs_options}} /dev/{{meta_disk}}"
+
+- name: "Setting Extended Attributes on meta disk"
+  shell: "tune2fs -o user_xattr /dev/{{ meta_disk }}"
+  when: is_meta|default('false')|bool
+
+- name: "Make directory {{meta_mount}}"
+  file:
+    path: "{{meta_mount}}"
+    state: directory
+
+- name: "Writing /etc/fstab"
+  lineinfile:
+    path: "/etc/fstab"
+    line: "/dev/{{meta_disk}}   {{meta_mount}}  {{disks.meta.fstype}} {{disks.meta.mount_options}}  0 0"
+
+- name: "Mounting meta disk"
+  shell: "mount /dev/{{meta_disk}}"
+
+- name: "Configuring meta service"
+  command: "/opt/beegfs/sbin/beegfs-setup-meta -f -p {{ meta_mount }} -s {{meta_id}} -m {{mgmt_node}}"
+
+- name: "Starting metadata services"
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - beegfs-meta

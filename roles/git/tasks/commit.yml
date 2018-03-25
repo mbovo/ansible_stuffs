@@ -1,0 +1,18 @@
+---
+
+- include: "set_user.yml"
+- include: "checkout.yml"
+
+- name: "[COMMIT] Add all "
+  command: git add --all
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master" or ( git_branch == "master" and git_use_master|bool )
+
+- name: "[COMMIT] [{{git_message}}]"
+  command: git commit -m "{{git_message}}"
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master" or ( git_branch == "master" and git_use_master|bool )
+  ignore_errors: True
+

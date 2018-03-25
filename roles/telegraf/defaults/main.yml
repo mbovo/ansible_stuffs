@@ -1,0 +1,23 @@
+---
+
+outputs: {}
+inputs: {}
+
+input_plugins:
+  - cpu
+  - disk
+  - diskio
+  - kernel
+  - mem
+  - processes
+  - swap
+  - system
+  - kernel_vmstat
+  - docker
+  - net
+  - netstat
+
+output_plugins:
+  - influxdb
+
+influx_dbname: "k8nodes"

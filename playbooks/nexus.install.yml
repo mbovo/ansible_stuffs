@@ -1,0 +1,10 @@
+---
+
+- hosts: "{{ target }}"
+  become: True
+  become_user: root
+  roles:
+#    - { role: offline_flep_installer, action: install, do_portal: True, do_frontend: True, facility_protocol: https, user_sudoer_uid: 1090 }
+#    - { role: webssl }
+    - { role: nexus }
+ 

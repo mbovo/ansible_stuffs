@@ -1,0 +1,22 @@
+---
+
+- name: "MASTER"
+  include: "swarm_master.yml"
+  static: no
+  when: master|bool
+
+- name: "MANAGERS"
+  include: "swarm_manager.yml"
+  static: no
+  when: manager|bool
+
+- name: "WORKERS"
+  include: "swarm_worker.yml"
+  static: no
+  when: worker|bool
+
+- name: "Leave"
+  include: "swarm_leave.yml"
+  static: no
+  when: leave|bool
+

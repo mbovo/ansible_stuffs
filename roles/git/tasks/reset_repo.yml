@@ -1,0 +1,10 @@
+---
+
+- name: "[RESET_REPO] Remove old .git info"
+  file:
+    path: "{{git_dest}}/.git"
+    state: absent
+  ignore_errors: True
+
+- include: "init.yml"
+

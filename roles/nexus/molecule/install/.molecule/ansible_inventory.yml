@@ -1,0 +1,24 @@
+# Molecule managed
+
+---
+all:
+  hosts:
+    centos74_nexus-install: &id001
+      ansible_connection: docker
+db:
+  hosts:
+    centos74_nexus-install: *id001
+fe:
+  hosts:
+    centos74_nexus-install:
+      ansible_connection: docker
+portal:
+  hosts:
+    centos74_nexus-install:
+      ansible_connection: docker
+search:
+  hosts:
+    centos74_nexus-install:
+      ansible_connection: docker
+ungrouped:
+  vars: {}

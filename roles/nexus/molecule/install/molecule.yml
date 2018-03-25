@@ -1,0 +1,39 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - { name: "centos74_nexus-install", groups: [fe,portal,search,db], image: "registry.zroot.org/custom_centos", tag: "7.4.1708", priv: True, caps: "SYS_ADMIN" , sec_opts: "seccomp:unconfined", cmd: "/usr/sbin/init" }
+provisioner:
+    name: ansible
+    lint:
+      name: ansible-lint
+    options:
+      vvv: False
+      e:
+    env:
+      LANG: C
+      LC_ALL: C
+      LC_MESSAGES: C
+scenario:
+  name: install
+  test_sequence:
+#    - lint
+    - destroy
+    - create
+    - converge
+    - verify
+    - destroy
+
+verifier:
+    name: testinfra
+    lint:
+      name: flake8
+    directory: "../../tests"
+    options:
+      html: "report.html"
+      v: True
+      s: True
+#      m: "common or mysql or httpd or java or build"
+      n: 4

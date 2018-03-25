@@ -1,0 +1,10 @@
+---
+
+- name: "[REMOTE] "
+  debug: msg="{{remote_url}}"
+
+- include: "remote_add.yml"
+  when: remote_action == 'add'
+
+- include: "remote_set.yml"
+  when: remote_action == 'set-url'

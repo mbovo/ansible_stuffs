@@ -1,0 +1,72 @@
+---
+
+- set_fact:
+    docker_engine_options: " {{docker_sockets}} {{docker_other_opts}} "
+  when: not docker_use_tls|bool
+
+- set_fact:
+    docker_engine_options: " {{docker_sockets}} {{docker_tls}} {{docker_other_opts}} "
+  when: docker_use_tls|bool
+
+- name: "[CONFIGURE] - Add kernel options"
+  lineinfile:
+    dest: "/etc/sysctl.conf"
+    line: "{{ item }}"
+    create: true
+  with_items: "{{ docker_kernel_options }}"
+
+- name: "[CONFIGURE] - Reload kernel options"
+  command: "sysctl -p"
+  when: ansible_connection != "docker"
+
+- name: "[CONFIGURE] - Remove extra options from docker.service in usr"
+  lineinfile:
+    dest: "/usr/lib/systemd/system/docker.service"
+    regexp: "^ExecStart=/usr/bin/dockerd.*"
+#    line: "ExecStart=/usr/bin/dockerd {{docker_engine_options}}"
+    line: "ExecStart=/usr/bin/dockerd"
+
+- name: "[CONFIGURE] - Add extra options to docker.service in system"
+  lineinfile:
+    dest: "/etc/systemd/system/multi-user.target.wants/docker.service"
+    regexp: "^ExecStart=/usr/bin/dockerd.*"
+#    line: "ExecStart=/usr/bin/dockerd {{docker_engine_options}}"
+    line: "ExecStart=/usr/bin/dockerd"
+  when: docker_start_engine|bool and not ansible_connection == "docker"
+
+- file:
+    path: "/etc/docker"
+    state: directory
+
+- name: "[CONFIGURE] - Change docker configuration"
+  template:
+    src: "./daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
+    force: True
+
+- name: "[CONFIGURE] - Create certificates path"
+  file:
+    path: "/etc/docker/certs"
+    state: directory
+  when: docker_use_tls|bool
+
+- name: "[CONFIGURE] - Upload server certs"
+  copy:
+    src: "docker_swarm/files/{{item}}"
+    dest: "/etc/docker/certs/"
+  with_items:
+    - "ca.pem"
+    - "server.pem"
+    - "server.key"
+  when: docker_use_tls|bool
+
+- name: "[CONFIGURE] - Reload systemd configuration"
+  command: "systemctl daemon-reload"
+
+
+- name: "Restart docker service"
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+  when: docker_start_engine|bool

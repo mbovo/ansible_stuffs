@@ -1,0 +1,6 @@
+---
+
+- hosts: "{{myhosts}}"
+  become: true
+  roles:
+    - { role: "beegfs" }

@@ -1,0 +1,29 @@
+---
+
+- name: "[INIT] "
+  command: git init
+  args:
+    chdir: "{{git_dest}}"
+
+- include: "set_user.yml"
+
+- name: "[INIT] Add all"
+  command: git add --all
+  args:
+    chdir: "{{ git_dest}}"
+
+- name: "[INIT] commit "
+  command: git commit -m "{{ git_message }}"
+  args:
+    chdir: "{{ git_dest }}"
+
+- name: "[INIT] add remote"
+  #command: git remote add origin 'https://{{stash_admin_user}}:{{stash_admin_passwd}}@{{stash_base_url}}/scm/{{git_project_name}}/{{git_repo_name|urlencode()}}.git'
+  command: git remote add origin '{{ git_repo }}'
+  args:
+    chdir: "{{ git_dest }}"
+
+- name: "[INIT] Push master"
+  command: git push -u origin master
+  args:
+    chdir: "{{ git_dest }}"

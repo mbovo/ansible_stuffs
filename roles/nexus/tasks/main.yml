@@ -1,0 +1,97 @@
+---
+
+- name: "Create group"
+  group:
+    name: "{{ nexus_group }}"
+    gid: "{{ nexus_gid }}"
+
+- name: "Create user"
+  user:
+    name: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+    uid: "{{ nexus_uid }}"
+    home: "{{ nexus_home }}"
+    createhome: False
+
+- name: "Download latest version"
+  get_url:
+    url: "{{ nexus_dwn }}"
+    dest: "/opt/latest-unix.tar.gz"
+
+- name: "Extract nexus"
+  unarchive:
+    src: "/opt/latest-unix.tar.gz"
+    dest: "/opt/"
+    remote_src: True
+
+- name: "Find target directory"
+  find:
+    paths: "/opt"
+    patterns: "nexus-*"
+    file_type: "directory"
+  register: nexus_src
+
+- fail: msg="Something wrong occured when unpacking {{nexus_src}}"
+  when: "{{ nexus_src.matched }} < 1"
+
+- name: "Symlink"
+  file:
+    src: "{{nexus_src.files[0].path}}"
+    dest: "{{nexus_path}}"
+    state: link
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+
+
+
+- name: "Installing keystore for SSL certs"
+  copy:
+    src: files/keystore.jks
+    dest: "{{ nexus_path }}/etc/ssl/keystore.jks"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+
+- name: "Enabling https on Jetty"
+  lineinfile:
+    dest: "{{ nexus_path }}/etc/jetty/jetty-https.xml"
+    regexp: "{{ item.re }}"
+    line: "{{ item.val }}"
+  with_items:
+    - { re: "<Set name=\"KeyStorePassword\">password</Set>", val: "<Set name=\"KeyStorePassword\">{{ nexus_keystore_passwd }}</Set>" }
+    - { re: "<Set name=\"KeyManagerPassword\">password</Set>", val: "<Set name=\"KeyManagerPassword\">{{ nexus_keymanager_passwd }}</Set>" }
+    - { re: "<Set name=\"TrustStorePassword\">password</Set>", val: "<Set name=\"TrustStorePassword\">{{ nexus_truststore_passwd }}</Set>" }
+
+- name: "Create data path"
+  file:
+    path: "{{ nexus_data_path }}/etc/"
+    state: directory
+  ignore_errors: True
+
+- name: "Enabling https port 8443"
+  template:
+    src: templates/nexus.properties.tpl
+    dest: "{{ nexus_data_path }}/etc/nexus.properties"
+
+- name: "Set ownership"
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: True
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+  with_items:
+    - "{{ nexus_data_path }}"
+    - "{{nexus_src.files[0].path}}"
+
+- name: "Install systemd service file"
+  template:
+    src: templates/nexus.service.tpl
+    dest: "/usr/lib/systemd/system/nexus.service"
+    owner: root
+    group: root
+
+- name: "Enable and start nexus as service"
+  service:
+    name: nexus
+    state: started
+    enabled: True

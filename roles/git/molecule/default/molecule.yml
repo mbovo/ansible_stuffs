@@ -1,0 +1,47 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+- { name: "centos74_git", image: "registry.zroot.int/deploy/flep_orchestrator", tag: "30", priv: True, caps: "SYS_ADMIN" , sec_opts: "seccomp:unconfined", cmd: "/usr/sbin/init" }
+provisioner:
+    name: ansible
+    lint:
+      name: ansible-lint
+    options:
+      vvv: False
+      e:
+        git_proj_name: TES
+        git_repo_name: test_git_role
+        git_dest: "/tmp/ansible"
+        git_commit: "Test commit"
+        git_config_user: "The Orc"
+        git_config_email: "orc@zroot.org"
+    env:
+      LANG: C
+      LC_ALL: C
+      LC_MESSAGES: C
+    connection_options:
+      ansible_ssh_user: jenkins
+scenario:
+  name: default
+  test_sequence:
+#    - lint
+    - destroy
+    - create
+    - converge
+    - verify
+    - destroy
+
+verifier:
+    name: testinfra
+    lint:
+      name: flake8
+    directory: "../../tests"
+    options:
+      html: "report.html"
+      v: True
+      s: False
+      n: 4
+#      m: tag

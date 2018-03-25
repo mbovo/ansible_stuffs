@@ -1,0 +1,18 @@
+---
+
+git_server_base_url: "stash.zroot.int"
+
+git_proj_name: "test"
+git_repo_name: "test"
+
+git_repo: "ssh://git@{{git_server_base_url}}:7999/{{git_proj_name}}/{{git_repo_name|lower|replace(' ', '-')}}.git"
+git_dest: "/tmp/{{git_repo_name}}"
+git_branch: "develop"
+git_tag: ""
+git_message: "New Commit"
+
+git_config_user: "The Orc"
+git_config_email: "orc@zroot.org"
+
+
+git_use_master: False

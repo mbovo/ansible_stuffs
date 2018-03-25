@@ -1,0 +1,42 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+#  - { name: "centos73_docker-install", image: "centos", tag: "7.3.1611", priv: True, caps: "SYS_ADMIN" , sec_opts: "seccomp:unconfined", cmd: "/usr/sbin/init" }
+  - { name: "centos74_docker-install", image: "centos", tag: "7.4.1708", priv: True, caps: "SYS_ADMIN" , sec_opts: "seccomp:unconfined", cmd: "/usr/sbin/init" }
+provisioner:
+    name: ansible
+    lint:
+      name: ansible-lint
+    options:
+      vvv: False
+      e:
+        docker_start_engine: False
+        docker_use_lvm: False
+        docker_use_tls: False
+    env:
+      LANG: C
+      LC_ALL: C
+      LC_MESSAGES: C
+scenario:
+  name: install
+  test_sequence:
+#    - lint
+    - destroy
+    - create
+    - converge
+    - verify
+#    - destroy
+
+verifier:
+    name: testinfra
+    lint:
+      name: flake8
+    directory: "../../tests"
+    options:
+      html: "report.html"
+      v: True
+      s: False
+      n: 4

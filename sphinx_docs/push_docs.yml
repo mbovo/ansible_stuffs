@@ -1,0 +1,20 @@
+---
+- hosts: dochost
+  tasks:
+    - name: "Remove old files"
+      file: 
+        path: "/opt/sphinx/build/html/*"
+        state: absent
+      
+#    - name: "Uplaod html files"
+#      copy: src=./build/html dest=/opt/sphinx/build/
+
+    - unarchive:
+        src: "./build/html/ansibledoc.tar.gz"
+        dest: "/opt/sphinx/build/html"
+      
+      
+  environment:
+    LANG: C
+    LC_ALL: C
+    LC_MESSAGES: C

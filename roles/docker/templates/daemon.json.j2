@@ -1,0 +1,33 @@
+{
+    "hosts": ["unix:///var/run/docker.sock", "tcp://0.0.0.0:2375"],
+    "insecure-registries": ["{{docker_insecure_registry}}"],
+{% if docker_cgroup_driver != "" %}
+    "exec-opts": ["native.cgroupdriver={{docker_cgroup_driver}}"],
+{% endif %}
+{% if docker_use_lvm|bool %}
+    "storage-driver": "devicemapper",
+    "storage-opts": [
+        "dm.thinpooldev=/dev/mapper/{{docker_vgname}}-{{docker_lvname}}",
+        "dm.use_deferred_removal=true",
+        "dm.use_deferred_deletion=true"
+    ],
+{% endif %}
+    "max-concurrent-downloads": {{docker_engine_concurrent_transfer}},
+    "max-concurrent-uploads": {{docker_engine_concurrent_transfer}},
+    "labels": [
+{% for label,value in docker_engine_labels.iteritems() %}
+{% if loop.last	%}
+            "{{label}}={{value}}"
+{% else %}
+            "{{label}}={{value}}",
+{% endif %}
+{% endfor %}
+    ],
+    "log-level": "{{ docker_engine_log_level }}",
+    "log-driver": "{{ docker_engine_log_driver }}",
+    "log-opts": {
+        "max-size": "{{ docker_engine_log_max_size }}",
+        "max-file": "{{ docker_engine_log_max_file }}",
+        "labels": "{{ docker_engine_log_labels }}"
+    }
+}

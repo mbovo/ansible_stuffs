@@ -1,0 +1,11 @@
+---
+
+- include: "set_user.yml"
+- include: "checkout.yml"
+
+
+- name: "[PUSH_FORCE] {{git_branch}}"
+  command: git push origin {{git_branch}}
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master" or ( git_branch == "master" and git_use_master|bool )

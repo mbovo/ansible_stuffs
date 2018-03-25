@@ -1,0 +1,24 @@
+---
+
+ansigenome_info:
+
+  authors:
+
+    - name:  'Author Name1'
+      email: 'aname1@email.com'
+
+    - name:  'Author Name2'
+      email: 'aname2@email.com'
+      
+  synopsis: |
+    The role will do terrible things.
+    This role will do nancy stuffs
+    
+  
+  usage: This is a brief usage
+  
+  sample: |
+    - role: myname here
+    
+    
+    

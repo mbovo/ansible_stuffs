@@ -1,0 +1,47 @@
+---
+
+- name: "Setting kernel params for performance"
+  lineinfile:
+    path: "/etc/sysctl.conf"
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - "vm.dirty_background_ratio = 5"
+    - "vm.dirty_ratio = 20"
+    - "vm_vfs_cache_pressure = 50"
+    - "vm.min_free_kbytes = 262144"
+    - "vm.zone_reclaim_mode = 1"
+
+- name: "Setting sys/kernel"
+  shell: "{{ item }}"
+  with_items:
+    - "echo always > /sys/kernel/mm/transparent_hugepage/enabled"
+    - "echo always > /sys/kernel/mm/transparent_hugepage/defrag"
+
+
+- name: "Setting disks parameters (mgmt)"
+  shell: "{{ item }}"
+  with_items:
+    - "echo deadline > /sys/block/{{mgmt_disk}}/queue/scheduler"
+    - "echo 128 > /sys/block/{{mgmt_disk}}/queue/nr_requests"
+    - "echo 128 > /sys/block/{{mgmt_disk}}/queue/read_ahead_kb"
+    - "echo 256 > /sys/block/{{mgmt_disk}}/queue/max_sectors_kb"
+  when: is_mgmt|default('false')|bool
+
+- name: "Setting disks parameters (meta)"
+  shell: "{{ item }}"
+  with_items:
+    - "echo deadline > /sys/block/{{meta_disk}}/queue/scheduler"
+    - "echo 128 > /sys/block/{{meta_disk}}/queue/nr_requests"
+    - "echo 128 > /sys/block/{{meta_disk}}/queue/read_ahead_kb"
+    - "echo 256 > /sys/block/{{meta_disk}}/queue/max_sectors_kb"
+  when: is_meta|default('false')|bool
+
+- name: "Setting disks parameters (storage)"
+  shell: "{{ item }}"
+  with_items:
+    - "echo deadline > /sys/block/{{storage_disk}}/queue/scheduler"
+    - "echo 128 > /sys/block/{{storage_disk}}/queue/nr_requests"
+    - "echo 128 > /sys/block/{{storage_disk}}/queue/read_ahead_kb"
+    - "echo 256 > /sys/block/{{storage_disk}}/queue/max_sectors_kb"
+  when: is_storage|default('false')|bool

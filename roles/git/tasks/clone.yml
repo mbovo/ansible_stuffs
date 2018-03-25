@@ -1,0 +1,16 @@
+---
+
+- name: "[CLONE] Truncate target directory"
+  file:
+    dest: "{{git_dest}}"
+    state: absent
+  ignore_errors: True
+
+- name: "[CLONE] Cloning {{git_repo}} to {{git_dest}}"
+  git:
+    clone: True
+    dest: "{{git_dest}}"
+    repo: "{{git_repo}}"
+    force: True
+    version: '{% if git_tag != "" %} {{git_tag}} {% else %} {{git_branch}} {% endif %}'
+    accept_hostkey: True

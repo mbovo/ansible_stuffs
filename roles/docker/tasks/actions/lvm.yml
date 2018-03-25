@@ -1,0 +1,41 @@
+---
+
+- name: "[LVM] - Add phisical device {{docker_pvname}}"
+  shell: pvcreate -y {{docker_pvname}}
+  tags: lvm
+ 
+- name: "[LVM] - Add volume grop {{docker_vgname}}"
+  shell: vgcreate -y {{docker_vgname}} {{docker_pvname}}
+  tags: lvm
+  
+- name: "[LVM] - Create logical volume {{docker_lvname}}"
+  shell: lvcreate --wipesignatures y -n {{docker_lvname}} {{docker_vgname}} -l 95%VG
+  tags: lvm
+   
+- name: "[LVM] - Create logical volue {{docker_lvname_meta}}"
+  shell: lvcreate --wipesignatures y -n {{docker_lvname_meta}} {{docker_vgname}} -l 1%VG
+  tags: lvm
+ 
+- name: "[LVM] - Converting logical volume in thin pool"
+  shell: lvconvert -y --zero n -c 512K --thinpool {{docker_vgname}}/{{docker_lvname}} --poolmetadata {{docker_vgname}}/{{docker_lvname_meta}}
+  tags: lvm
+ 
+- name: "[LVM] - Create lvm profile for autoextend"
+  blockinfile: 
+    create: yes 
+    dest: "/etc/lvm/profile/{{docker_vgname}}-{{docker_lvname}}.profile" 
+    marker: ""
+    block: |
+         activation {
+         thin_pool_autoextend_threshold=80
+         thin_pool_autoextend_percent=20
+         }
+  tags: lvm
+ 
+- name: "[LVM] - Load lvm profile"
+  shell: lvchange --metadataprofile {{docker_vgname}}-{{docker_lvname}} {{docker_vgname}}/{{docker_lvname}}
+  tags: lvm
+
+- name: "[LVM] - Check current config"
+  shell: lvs
+  tags: lvm

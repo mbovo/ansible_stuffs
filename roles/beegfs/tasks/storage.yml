@@ -1,0 +1,37 @@
+---
+
+- name: "Install storage server"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - beegfs-storage
+
+- include: "kernel.yml"
+
+- name: "mkfs /dev/{{storage_disk}}"
+  shell: "mkfs.{{disks.storage.fstype}} {{disks.storage.mkfs_options}} /dev/{{storage_disk}}"
+
+- name: "Make directory {{storage_mount}}"
+  file:
+    path: "{{storage_mount}}"
+    state: directory
+
+- name: "Writing /etc/fstab"
+  lineinfile:
+    path: "/etc/fstab"
+    line: "/dev/{{storage_disk}}   {{storage_mount}}  {{disks.storage.fstype}} {{disks.storage.mount_options}}  0 0"
+
+- name: "Mounting storage disk"
+  shell: "mount /dev/{{storage_disk}}"
+
+- name: "Configuring storage service"
+  command: "/opt/beegfs/sbin/beegfs-setup-storage -f -p {{ storage_mount }} -s {{storage_id}} -i {{storage_disk_id}} -m {{mgmt_node}}"
+
+- name: "Starting storage services"
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - beegfs-storage

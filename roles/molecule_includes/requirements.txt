@@ -1,0 +1,16 @@
+ansible==2.3.2.0
+ansible-lint
+molecule==2.1.0
+distribution
+testinfra==1.6.4
+#testinfra==1.7.1
+docker
+docker-compose
+docker-py==1.8.0
+pytest==3.2.2
+# pytest-benchmark
+# pytest-expect
+pytest-html
+pytest-metadata
+pytest-xdist
+PyYAML

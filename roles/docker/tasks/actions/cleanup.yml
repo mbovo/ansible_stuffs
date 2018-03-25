@@ -1,0 +1,46 @@
+---
+
+- name: "Check if docker is part of a swarm"
+  shell: "docker info | grep Swarm | grep -q ' active'"
+  register: is_swarm
+  ignore_errors: True
+
+- name: "Check if docker storage driver is a devicemapper"
+  shell: "docker info | grep -i Storage | grep -qi devicemapper"
+  register: is_lvm
+  ignore_errors: True
+
+- name: "Check if there are containers"
+  shell: "docker ps -aq | wc -l | awk '{print $1}'"
+  register: containers_n
+  ignore_errors: True
+
+- debug: msg="{{is_swarm}}"
+- debug: msg="{{is_lvm}}"
+- debug: msg="{{containers_n}}"
+
+- name: "Leave the swarm"
+  command: "docker swarm leave --force"
+  when: is_swarm.rc|int == 0
+
+- name: "Docker cleanup"
+  shell: "docker ps -aq | xargs docker rm -f "
+  when: containers_n.stdout|int > 0
+  ignore_errors: True
+
+- name: "Stop docker service"
+  service:
+    name: docker
+    state: stopped
+
+- name: "Purge old configuration"
+  file:
+    path: "{{item}}"
+    state: absent
+  with_items:
+    - /var/lib/docker
+    - /var/run/docker
+
+- include: "lvm_cleanup.yml"
+  static: no
+  when: is_lvm.rc|int == 0

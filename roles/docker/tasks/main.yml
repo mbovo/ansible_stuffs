@@ -1,0 +1,9 @@
+---
+
+- meta: flush_handlers
+
+- name: "Check kernel version"
+  fail: msg="You must install a kernel >= 3.10"
+  when: "ansible_kernel|regex_replace('^(.*)-.*$','\\1')|version_compare('3.10.0', '<') "
+
+- include: "actions/{{action}}.yml"

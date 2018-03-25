@@ -1,0 +1,8 @@
+---
+
+
+- name: "[CHECKOUT] {{git_branch}}"
+  command: git checkout {{git_branch}}
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master" or ( git_branch == "master" and git_use_master|bool )

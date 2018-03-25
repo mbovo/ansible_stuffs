@@ -1,0 +1,10 @@
+---
+
+- name: "Register manager token"
+  delegate_to: localhost
+  become: false
+  shell: cat /tmp/manager.token
+  register: manager_token
+
+- name: "Register {{inventory_hostname}} to swarm"
+  shell: "docker swarm join --token {{manager_token.stdout}} {{adv_addr}}"

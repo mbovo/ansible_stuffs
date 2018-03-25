@@ -1,0 +1,14 @@
+---
+
+- name: "[BRANCH] {{git_branch}}"
+  command: git checkout -b {{git_branch}}
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master"
+
+- name: "[BRANCH] set upstream"
+  command: git push --set-upstream origin {{git_branch}}
+  args:
+    chdir: "{{ git_dest }}"
+  when: git_branch != "master"
+
